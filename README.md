@@ -16,13 +16,6 @@ chmod +x install-opentofu.sh
 rm -f install-opentofu.sh
 ```
 
-### Download Fedora KVM image on each node
-```shell
-mkdir /var/lib/vz/template/qcow || \
-cd /var/lib/vz/template/qcow && \
-wget https://download.fedoraproject.org/pub/fedora/linux/releases/40/Server/x86_64/images/Fedora-Server-KVM-40-1.14.x86_64.qcow2
-```
-
 ### Creating the Proxmox user and role for OpenTofu
 [Proxmox Provider](https://library.tf/providers/Telmate/proxmox/latest)
 ```shell
