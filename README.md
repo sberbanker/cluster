@@ -16,10 +16,29 @@ chmod +x install-opentofu.sh
 rm -f install-opentofu.sh
 ```
 
-### Creating the Proxmox user and role for tofu
+### Download Fedora KVM image on each node
+```shell
+mkdir /var/lib/vz/template/qcow || \
+cd /var/lib/vz/template/qcow && \
+wget https://download.fedoraproject.org/pub/fedora/linux/releases/40/Server/x86_64/images/Fedora-Server-KVM-40-1.14.x86_64.qcow2
+```
+
+### Creating the Proxmox user and role for OpenTofu
 [Proxmox Provider](https://library.tf/providers/Telmate/proxmox/latest)
 ```shell
-pveum role add TerraformProv -privs "Datastore.AllocateSpace Datastore.Audit Pool.Allocate Sys.Audit Sys.Console Sys.Modify VM.Allocate VM.Audit VM.Clone VM.Config.CDROM VM.Config.Cloudinit VM.Config.CPU VM.Config.Disk VM.Config.HWType VM.Config.Memory VM.Config.Network VM.Config.Options VM.Migrate VM.Monitor VM.PowerMgmt SDN.Use"
-pveum user add terraform-prov@pve --password <password>
-pveum aclmod / -user terraform-prov@pve -role TerraformProv
+# Create the user
+sudo pveum user add terraform@pve
+# Create a role for the user above
+sudo pveum role add Terraform -privs "Datastore.Allocate Datastore.AllocateSpace Datastore.AllocateTemplate Datastore.Audit Pool.Allocate Sys.Audit Sys.Console Sys.Modify SDN.Use VM.Allocate VM.Audit VM.Clone VM.Config.CDROM VM.Config.Cloudinit VM.Config.CPU VM.Config.Disk VM.Config.HWType VM.Config.Memory VM.Config.Network VM.Config.Options VM.Migrate VM.Monitor VM.PowerMgmt User.Modify"
+# Assign the terraform user to the above role
+sudo pveum aclmod / -user terraform@pve -role Terraform
+# Create the token
+sudo pveum user token add terraform@pve provider --privsep=0
+```
+
+### Using OpenTofu
+```shell
+tofu init
+tofu plan -out plan
+tofu apply "plan"
 ```
